@@ -13,8 +13,8 @@ export default class CSV extends Parser {
 		
 	constructor(fileList) {
 		super(fileList); 
+		this.frames = [];
 		
-		this.parsedValues = [];
 	}
 		
 	IsValid() {		
@@ -34,38 +34,61 @@ export default class CSV extends Parser {
 		return d.promise;
 	}
 	
-	Parse(files) {
+	Parse(files, settings) {
 		var d = Lang.Defer();
+		var simulation = new Simulation();
 		
-		
-		var txt = Array.Find(files, function(f) { return f.name.match(/.csv/i); });
+		var csv = Array.Find(files, function(f) { return f.name.match(/.csv/i); });
 		//var svg = Array.Find(files, function(f) { return f.name.match(/.svg/i); });
 
-		var p1 = Sim.ParseFile(txt, this.ParseTxtFile.bind(this));
+		var p1 = Sim.ParseFile(csv, this.ParseCSVFile.bind(this, simulation));
 		//var p2 = Sim.ParseFile(svg, this.ParseSVGFile.bind(this));
 
 		var defs = [p1];
 	
 		Promise.all(defs).then((data) => {
 			
-			var info = {
+		var info = {
 				simulator : "CSV",
-				name : txt.name.replace(/\.[^.]*$/, ''),
+				name : csv.name.replace(/\.[^.]*$/, ''),
 				files : files,
-			
+				lastFrame : simulation.LastFrame().time,
+				nFrames : simulation.frames.length
 			}
 			
-			//this.size = this.ma.models.length;
-			//this.models = this.ma.models;
-			//this.svg=this.svg;
-			//simulation.Initialize(info, settings);
 
-			d.Resolve();
+			simulation.csv=this.csv;
+			simulation.Initialize(info, settings);
+
+			d.Resolve(simulation);
 		});
 		
 		return d.promise;
 	}
+ParseCSVFile(simulation, chunk, progress) {		
+		var lines= [];
+		lines = (chunk.split("\n"));
 
-	
+		var i =1;
+		Array.ForEach(lines, function(line) { 
+			var split = line.split(",");
+
+			// Parse model id
+			var id = split[2].trim();
+					
+			
+			if (id.length < 1) return;
+			
+			//Parse state value, timestamp used as frame id
+			var v = parseFloat(split[4]);
+			var fId = split[0].trim();
+						
+			var f = simulation.Index(fId) || simulation.AddFrame(new Frame(fId));
+			
+			f.AddTransition(new Transition(id, v));
+			
+		}.bind(this));
+		//console.log(simulation.frames);
+		}
 	
 }
