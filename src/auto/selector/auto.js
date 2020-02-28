@@ -49,7 +49,8 @@ let AUTOS = [{
 let SIMULATORS = {
 		"Lopez" : ["gridLayer", "cellTrack", "stateSum", "transitionMap"],
 		"CDpp" : ["gridLayer", "cellTrack", "stateSum", "transitionMap"],
-		"DEVS" : ["cellTrack", "stateSum", "devsDiagram"]
+		"DEVS" : ["cellTrack", "stateSum", "devsDiagram"],
+		"CSV"  : ["devsDiagram"]
 	}
 	
 export default Lang.Templatable("Auto.Selector", class AutoSelector extends Automated { 
