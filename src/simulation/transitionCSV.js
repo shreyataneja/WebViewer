@@ -2,10 +2,10 @@
 
 export default class TransitionCSV { 
 
-	constructor(frame, model, state, input, output, errorMsg, phase) {
+	constructor(frame, id, state, input, output, errorMsg, phase) {
 
 		this.frame = frame;
-		this.model = model;
+		this.id = id;
 		this.state = state;
 		this.input = input;
 		this.output = output;
@@ -17,8 +17,8 @@ export default class TransitionCSV {
 		return this.frame;
 	}
 
-	get Model() {
-		return this.model;
+	get Id() {
+		return this.id;
 	}
 	
 	get State() {

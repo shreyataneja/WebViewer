@@ -277,7 +277,7 @@ export default class CDpp extends Parser {
 			
 			f.AddTransition(new TransitionCA(coord, val));
 		}.bind(this));
-		
+		console.log(simulation);
 		this.Emit("Progress", { progress: progress });
 	}
 	

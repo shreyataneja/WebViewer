@@ -21,8 +21,9 @@ export default class CSV extends Parser {
 	IsValid() {		
 		var d = Lang.Defer();
 		var csv = Array.Find(this.files, function(f) { return f.name.match(/.csv/i); });
+		var svg = Array.Find(this.files, function(f) { return f.name.match(/.svg/i); });
 		
-		if (!csv) d.Resolve(false);
+		if (!csv ) d.Resolve(false);
 		
    		var reader = new ChunkReader();
 
@@ -40,12 +41,12 @@ export default class CSV extends Parser {
 		var simulation = new Simulation();
 		
 		var csv = Array.Find(files, function(f) { return f.name.match(/.csv/i); });
-		//var svg = Array.Find(files, function(f) { return f.name.match(/.svg/i); });
-
+		var svg = Array.Find(files, function(f) { return f.name.match(/.svg/i); });
+		
 		var p1 = Sim.ParseFile(csv, this.ParseCSVFile.bind(this, simulation));
-		//var p2 = Sim.ParseFile(svg, this.ParseSVGFile.bind(this));
+		var p2 = Sim.ParseFile(svg, this.ParseSVGFile.bind(this, simulation));
 
-		var defs = [p1];
+		var defs = [p1,p2];
 	
 		Promise.all(defs).then((data) => {
 			
@@ -58,9 +59,9 @@ export default class CSV extends Parser {
 			}
 			
 
-//			simulation.size = this.ma.models.length;
+			simulation.size = this.models.length;
 			simulation.models = this.models;
-//			simulation.svg=this.svg;
+			simulation.svg=this.svg;
 
 			simulation.Initialize(info, settings);
 
@@ -69,6 +70,12 @@ export default class CSV extends Parser {
 		
 		return d.promise;
 	}
+	ParseSVGFile(simulation, file) 
+	{
+		this.svg=file;
+	}
+
+
 ParseCSVFile(simulation, chunk, progress) {		
 		var lines= [];
 		lines = (chunk.split("\n"));
@@ -93,9 +100,31 @@ ParseCSVFile(simulation, chunk, progress) {
 			var f = simulation.Index(fId) || simulation.AddFrame(new Frame(fId));
 			//f.AddTransition(new Transition(state, v));
 			f.AddTransition(new TransitionCSV(fId, model, state,input, output,error,phase));
-			
+		
+
+		var modelsArray = []; 
+
+		modelsArray.push(model);
+		var j = 0,k=0;
+        var count = 0; 
+        var start = false; 
+          
+        for (j = 0; j < modelsArray.length; j++) { 
+            for (k = 0; k < this.models.length; k++) { 
+                if ( modelsArray[j] == this.models[k] ) { 
+                    start = true; 
+                } 
+            } 
+            count++; 
+            if (count == 1 && start == false) { 
+                this.models.push(modelsArray[j]); 
+            } 
+            start = false; 
+            count = 0; 
+        } 
+
 		}.bind(this));
-		console.log(simulation);
+	
 		}
 	
 }
