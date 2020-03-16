@@ -68,7 +68,7 @@ export default class DEVS extends Parser {
 
 			d.Resolve(simulation);
 		});
-		
+		console.log(d.promise);
 		return d.promise;
 	}
 	ParseSVGFile(simulation, file) 
@@ -168,7 +168,7 @@ export default class DEVS extends Parser {
 			
 			f.AddTransition(new Transition(id, v));
 		}.bind(this));
-
+// console.log(simulation);
 
 		this.Emit("Progress", { progress: progress });
 	}

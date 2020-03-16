@@ -122,8 +122,8 @@ ParseCSVFile(simulation, chunk, progress) {
             start = false; 
             count = 0; 
         } 
-
-		}.bind(this));
+console.log(simulation)
+;		}.bind(this));
 	
 		}
 	
