@@ -10,7 +10,7 @@ import TransitionCSV from '../transitionCSV.js';
 import Parser from "./parser.js";
 import ChunkReader from '../../components/chunkReader.js';
 
-export default class CSV extends Parser { 
+export default class JSON extends Parser { 
 		
 	constructor(fileList) {
 		super(fileList); 
