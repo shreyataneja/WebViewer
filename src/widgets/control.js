@@ -63,8 +63,7 @@ export default Lang.Templatable("Widget.Control", class Control extends Widget {
 	}
 	
 	LoadSimulation(simulation) {
-		
-		//this.config =  null;
+		console.log(simulation);
 
 		this.simulation = simulation;
 		

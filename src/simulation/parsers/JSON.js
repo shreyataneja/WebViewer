@@ -4,8 +4,9 @@ import Lang from '../../utils/lang.js';
 import Array from '../../utils/array.js';
 import Sim from '../../utils/sim.js';
 import Simulation from '../simulation.js';
+import Palette from '../palettes/basic.js';
 import Frame from '../frame.js';
-import Transition from '../transition.js';
+import TransitionCA from '../transitionCA.js';
 import TransitionCSV from '../transitionCSV.js';
 import Parser from "./parser.js";
 import ChunkReader from '../../components/chunkReader.js';
@@ -17,6 +18,8 @@ export default class JSON extends Parser {
 		this.frames = [];
 		this.models =[];
 		this.simulationX = new Simulation();
+		this.colorarray =[];
+		this.rangearray =[];
 	}
 		
 	IsValid() {		
@@ -64,26 +67,43 @@ export default class JSON extends Parser {
 
 
 ParseJSONFile(simulation, chunk, progress) {		
-	var split = chunk.split(',"');
 
-	var svgUrl = split[0].split('":')[1].replace('"','').replace('"','');
-	var transitionCsvUrl = split[1].split(':"')[1].replace('"','');
-	var size = split[2].split(':')[1];
-	 this.simulatorName = split[3].split(':"')[1].replace('"','');
-	 this.simulator = split[4].split(':"')[1].replace('"','');
-	var palette = split[5].split(':')[1].replace('}','');
 
-	simulation.size = size;
-fetch(svgUrl)
+	var svgstart = chunk.indexOf('svg',0);
+	var svgend =  chunk.indexOf(',', svgstart);
+	var logstart = chunk.indexOf('log',0);
+	var logend =  chunk.indexOf('}', svgstart);
+	
+	var svgUrl = chunk.substr(svgstart, svgend - svgstart).split('":')[1].replace('"','').replace('"','');
+	var logurl = chunk.substr(logstart, logend - logstart).split(':"')[1].replace('"','');
+
+	var simulatorstart = chunk.indexOf('simulator',0);
+	var simulatorend =  chunk.indexOf(',', simulatorstart);
+
+	var namestart = chunk.indexOf('name',0);
+	var nameend =  chunk.indexOf(',', namestart);
+
+	var sizestart = chunk.indexOf('size',0);
+	var sizeend =  chunk.indexOf('}', sizestart);
+
+	this.simulatorName = chunk.substr(namestart, nameend - namestart).split(':"')[1].replace('"','');
+	this.simulator = chunk.substr(simulatorstart, simulatorend - simulatorstart).split(':"')[1].replace('"','');
+
+
+	simulation.size = (chunk.substr(sizestart, sizeend - sizestart).split(':')[1].trim().replace('[','').replace(']','').split(',')).map(Number);
+	this.ParsePalette(chunk, simulation);
+
+	
+	if(svgUrl !== 'null') {fetch(svgUrl)
  			.then(results => {
   				 return results.json();
   				})
   			.then(data => {
   				this.ParseSVGFile(simulation, data.files["SVGfile.svg"].content);
    			
-  			});	
+  			});	}
 
-var c = fetch(transitionCsvUrl)
+	var c = fetch(logurl)
  			.then(results => {
   				 return results.json();
   				})
@@ -94,6 +114,7 @@ var c = fetch(transitionCsvUrl)
   			
   			this.Emit("Progress", { progress: progress });
 		return c;
+
 		}
 	
 ParseCSVFile( transitionCsv, simulation) {		
@@ -112,20 +133,20 @@ ParseCSVFile( transitionCsv, simulation) {
 			var state = split[2];
 			var input = split[3];
 			var output = split[4];
-			var error = split[5];
-			var phase = split[6];
-
+			var phase = split[5];
+			var coord = split[7];
 			
+	
 			//Parse state value, timestamp used as frame id
 			var v = parseFloat(split[4]);
 			var fId = split[0];
 						
 			var f = simulation.Index(fId) || simulation.AddFrame(new Frame(fId));
 			//f.AddTransition(new Transition(state, v));
-			f.AddTransition(new TransitionCSV(fId, model, state,input, output,error,phase));
+			f.AddTransition(new TransitionCSV(fId, model, state,input, output,phase,coord));
 		
-
-		var modelsArray = []; 
+if(this.simulator == 'DEVS' || this.simulator == 'FSM')
+	{	var modelsArray = []; 
 
 		modelsArray.push(model);
 		var j = 0,k=0;
@@ -146,12 +167,17 @@ ParseCSVFile( transitionCsv, simulation) {
             count = 0; 
         } 
         simulation.models = this.models;
+}
 
 		}.bind(this));
-	
 
+if(this.simulator == 'CDpp')
+			for(var x = 0; x <simulation.size[0] ;x++)
+			{ 	for(var y=0 ; y< simulation.size[1] ; y++)
+				simulation.models.push(TransitionCSV.CoordToId([x,y,0]));
+			}
 
-var info = {
+		var info = {
 				simulator : this.simulator,
 				name : this.simulatorName,
 				files : this.files,
@@ -167,5 +193,42 @@ var info = {
 ParseSVGFile(simulation, SVGfile)
 {
 	simulation.svg = SVGfile;
-}	
+}
+ParsePalette(chunk, simulation)	
+{
+	simulation.palette = new Palette();
+
+	var colorstart = chunk.indexOf('color', 0);
+	while (colorstart > -1 && colorstart < chunk.length) {
+			var colorend = chunk.indexOf('}', colorstart);
+
+			if (colorstart == -1) colorend = chunk.length + 1;
+
+			var lengthX = colorend - colorstart;
+
+			//linesX.push(chunk.substr(colorstart, lengthX));
+		this.colorarray.push(chunk.substr(colorstart, lengthX).split(':')[1].replace('[','').replace(']','').trim());
+			var colorstart = chunk.indexOf('color', colorstart + lengthX);
+		}
+		var rangestart = chunk.indexOf('range', 0);
+	while (rangestart > -1 && rangestart < chunk.length) {
+			var rangeend = chunk.indexOf('],', rangestart);
+
+			if (rangestart == -1) rangeend = chunk.length + 1;
+
+			var lengthX = rangeend - rangestart;
+
+			//linesX.push(chunk.substr(colorstart, lengthX));
+		this.rangearray.push(chunk.substr(rangestart, lengthX).split(':')[1].replace('[',''));
+			var rangestart = chunk.indexOf('range', rangestart + lengthX);
+		}
+
+		for(var i=0; i< this.colorarray.length ; i++)
+		{
+			simulation.palette.AddClass(parseInt(this.rangearray[i].split(',')[0]), 
+										parseInt(this.rangearray[i].split(',')[1]), 
+										this.colorarray[i].split(',').map(Number));
+		}
+
+}
 }
