@@ -68,7 +68,7 @@ export default class DEVS extends Parser {
 
 			d.Resolve(simulation);
 		});
-		console.log(d.promise);
+		
 		return d.promise;
 	}
 	ParseSVGFile(simulation, file) 

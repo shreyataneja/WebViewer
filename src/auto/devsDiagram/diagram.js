@@ -122,11 +122,11 @@ this.Node('diagram').innerHTML = 'No SVG Found';
 			var m = this.models[t.id];
 			var i = this.models[t.input];
 			var o = this.models[t.output];
-
-			//if (!m ) return;
-		
+			
+			if (t.phase == 'inactive' ) m = null;
+			
 			// TODO : style should come from auto wrapper.
-
+			
 			this.DrawModel(m, i, o, 'LightSeaGreen', null, 4.0);
 
 		}.bind(this));
