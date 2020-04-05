@@ -58,7 +58,7 @@ export default class JSON extends Parser {
 		});	
 		
 			
-	defsdata.then(function(result) {
+		defsdata.then(function(result) {
  		d.Resolve(result);
 		});
 	
@@ -74,7 +74,7 @@ export default class JSON extends Parser {
 		var svgend =  chunk.indexOf(',', svgstart);
 		var logstart = chunk.indexOf('log',0);
 		var logend =  chunk.indexOf('}', svgstart);
-		
+
 		var svgUrl = chunk.substr(svgstart, svgend - svgstart).split('":')[1];
 		var logurl = chunk.substr(logstart, logend - logstart).split(':"')[1].replace('"','');
 

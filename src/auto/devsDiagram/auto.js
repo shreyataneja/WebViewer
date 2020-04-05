@@ -87,12 +87,13 @@ export default Lang.Templatable("Auto.DevsDiagram", class AutoDevsDiagram extend
 	}
 	
 	onClick_Handler(ev) {
+
 		var idx = this.selected.indexOf(ev.model);
 
 		// TODO : Selection should be handled by diagram, not auto class
 		if (idx == -1) {
 			this.selected.push(ev.model);
-			this.Widget.DrawModel(ev.model, null, 'red', null);
+			this.Widget.DrawModel(ev.model,null,null, null, 'red', null);
 		}
 		else {
 			this.selected.splice(idx, 1);
@@ -100,7 +101,7 @@ export default Lang.Templatable("Auto.DevsDiagram", class AutoDevsDiagram extend
 		}
 		
 		Array.ForEach(this.selected, function(s) {
-			this.Widget.DrawModel(s, null, 'red', null);
+			this.Widget.DrawModel(s, null,null,null, 'red', null);
 		}.bind(this));
 	}
 
