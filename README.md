@@ -5,7 +5,7 @@ The code is available in Simulation Everywhere repository in branch DEV_Shreya :
 and also can be accessed from : https://github.com/shreyataneja/WebViewer
 
 1. Visit https://shreyataneja.github.io/WebViewer/ and try the tool out.
-2. Try to visualize simulations using JSON files available under "WebViewer/JSON files for WebViewer/" folder from the git repository. 
+2. Try to visualize simulations using JSON files available under "WebViewer/JSON files for WebViewer/" folder from the git repository. (Download folder)
 3. Upload the JSON file in the “dropzone”.
 4. Click on the “Load Simulation” Button.
 5. Based on the type of Simulator, Widget will provide the visualization options to the user.
